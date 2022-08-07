@@ -1,0 +1,7 @@
+            lac     five
+1:          add     negone
+            sza
+            jmp     1b
+            hlt
+five:       .fill   5
+negone:     .fill   -1

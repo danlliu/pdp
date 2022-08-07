@@ -1,0 +1,7 @@
+.vscode
+*.o
+*.dSYM
+assembler
+assembler_debug
+simulator
+simulator_debug

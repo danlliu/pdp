@@ -1,0 +1,6 @@
+            add     five
+            idx     negone
+            add     negone
+            hlt
+five:       .fill   5
+negone:     .fill   -1

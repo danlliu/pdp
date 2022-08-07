@@ -1,0 +1,7 @@
+            .macro  M   X   Y
+            add     X
+            add     Y
+            .endmacro
+            M      #5  #6
+            hlt
+            .space  2
