@@ -17,6 +17,8 @@
 #define DEBUG_PRINT(x)
 #endif
 
+#define MINUS_ZERO 0777777
+
 // had to do it
 #define HALT_AND_CATCH_FIRE exit(1);
 
@@ -75,6 +77,20 @@ PDPProcessor::PDPProcessor(const PDPSettings &settings_in) : settings{settings_i
     }
 }
 
+// printState
+
+void PDPProcessor::printState() const {
+    std::cout << "\n";
+    std::cout << "PC:      " << state.pc << "\n";
+    std::cout << "INSTR: " << state.cm[state.pc.to_ulong()] << "\n";
+    std::cout << "AC:    " << state.ac << "\n";
+    std::cout << "IO:    " << state.io << "\n";
+    std::cout << "SW:                " << settings.senseSwitches << "\n";
+    std::cout << "PF:                " << state.pf << "\n" << std::endl;
+}
+
+// execution logic
+
 bool PDPProcessor::step() {
     if (!state.running) return false;
 
@@ -106,6 +122,12 @@ bool PDPProcessor::executeInstruction(unsigned long instr) {
             // one's complement addition
             unsigned long sum = ac + cy;
             if (sum & 01000000) sum = (sum & 0777777) + 1;
+
+            // minus zero stuff
+            if (sum == MINUS_ZERO) {
+                DEBUG_PRINT("converting -0 to +0");
+                sum = 0;
+            }
 
             WORD newAC {sum};
 
@@ -141,7 +163,7 @@ bool PDPProcessor::executeInstruction(unsigned long instr) {
             else diff &= 0777777;
 
             // minus zero shenanigans
-            if (diff == (1 << 17) && (ac != (1 << 17) || cy != 0)) {
+            if (diff == MINUS_ZERO && !(ac == MINUS_ZERO && cy == 0)) {
                 DEBUG_PRINT("converting -0 to +0");
                 diff = 0;
             }
@@ -605,6 +627,55 @@ bool PDPProcessor::executeInstruction(unsigned long instr) {
     case 064:
         {
             // skip group
+            DEBUG_PRINT((indirect ? "skpn" : "skp"));
+            bool conditionMatched = false;
+            if (operand12 & 00100) {
+                DEBUG_PRINT("...za");
+                DEBUG_PRINT("ac       = " << state.ac);
+                conditionMatched = conditionMatched || (state.ac.none());
+            }
+            if (operand12 & 00200) {
+                DEBUG_PRINT("...pa");
+                DEBUG_PRINT("ac       = " << state.ac);
+                conditionMatched = conditionMatched || (!state.ac[17]);
+            }
+            if (operand12 & 00400) {
+                DEBUG_PRINT("...ma");
+                DEBUG_PRINT("ac       = " << state.ac);
+                conditionMatched = conditionMatched || (state.ac[17]);
+            }
+            if (operand12 & 01000) {
+                DEBUG_PRINT("...zo");
+                DEBUG_PRINT("overflow = " << state.overflow);
+                conditionMatched = conditionMatched || (!state.overflow);
+                state.overflow = false;
+            }
+            if (operand12 & 02000) {
+                DEBUG_PRINT("...pi");
+                DEBUG_PRINT("io       = " << state.io);
+                conditionMatched = conditionMatched || (!state.io[17]);
+            }
+            if (operand12 & 00070) {
+                unsigned int switches = (operand12 >> 3) & 07;
+                DEBUG_PRINT("...zs " << switches);
+                DEBUG_PRINT("switches = " << settings.senseSwitches);
+
+                if (switches == 7) conditionMatched = conditionMatched || settings.senseSwitches.all();
+                else conditionMatched = conditionMatched || settings.senseSwitches[switches - 1];
+            }
+            if (operand12 & 00007) {
+                unsigned int flags = operand12 & 07;
+                DEBUG_PRINT("...zf " << flags);
+                DEBUG_PRINT("flags    = " << state.pf);
+
+                if (flags == 7) conditionMatched = conditionMatched || state.pf.all();
+                else conditionMatched = conditionMatched || state.pf[flags - 1];
+            }
+
+            if (conditionMatched != indirect) {
+                DEBUG_PRINT("skipping");
+                state.pc = {state.pc.to_ulong() + 1};
+            }
             break;
         }
 
@@ -618,8 +689,36 @@ bool PDPProcessor::executeInstruction(unsigned long instr) {
             case 04000:
                 // cli
                 DEBUG_PRINT("cli");
-                state.io = 0;
+                state.io = {0};
                 break;
+
+            case 00100:
+                {
+                    // lap
+                    DEBUG_PRINT("lap");
+                    DEBUG_PRINT("ac       = " << state.ac);
+                    DEBUG_PRINT("pc       = " << state.pc);
+
+                    WORD newAC = {state.pc.to_ulong()};
+                    newAC[17] = state.ac[17] || state.overflow;
+                    newAC[16] = state.extend;
+
+                    DEBUG_PRINT("new ac   = " << newAC);
+                    state.ac = newAC;
+                    break;
+                }
+
+            case 01000:
+                {
+                    // cma
+                    DEBUG_PRINT("cma");
+                    DEBUG_PRINT("ac       = " << state.ac);
+
+                    WORD newAC = ~state.ac;
+                    DEBUG_PRINT("new ac   = " << newAC);
+                    state.ac = newAC;
+                    break;
+                }
 
             case 00400:
                 // hlt
@@ -628,16 +727,34 @@ bool PDPProcessor::executeInstruction(unsigned long instr) {
                 incPC = false;
                 break;
 
+            case 00200:
+                // cla
+                DEBUG_PRINT("cla");
+                state.ac = {0};
+                break;
+
             case 00000:
                 // nop
                 DEBUG_PRINT("nop");
                 break;
 
             default:
-                // idk
-                DEBUG_PRINT("idk op");
-                HALT_AND_CATCH_FIRE;
-                break;
+                {
+                    if (address & 07) {
+                        bool set = address & 010;
+                        unsigned int flags = address & 07;
+                        if (flags == 7 && set) {
+                            state.pf.set();
+                        } else {
+                            state.pf[flags - 1] = set;
+                        }
+                        break;
+                    }
+
+                    DEBUG_PRINT("idk op");
+                    HALT_AND_CATCH_FIRE;
+                    break;
+                }
             }
             break;
         }

@@ -30,7 +30,10 @@ int main(int argc, char** argv) {
     PDPSettings settings = parseSettings(argc, argv);
 
     PDPProcessor proc(settings);
-    while (proc.step());
+    do {
+        proc.printState();
+    } while (proc.step());
+    proc.printState();
     return 0;
 }
 

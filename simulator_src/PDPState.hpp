@@ -20,6 +20,8 @@ struct PDPState {
     std::bitset<12> ma = 0;
     std::bitset<5>  ir = 0;
 
+    std::bitset<6>  pf = 0;
+
     bool overflow = false;
     bool extend   = false;
 
@@ -50,6 +52,8 @@ private:
 public:
 
     PDPProcessor(const PDPSettings &settings);
+
+    void printState() const;
 
     bool isDebug() const { return settings.debug; }
 
