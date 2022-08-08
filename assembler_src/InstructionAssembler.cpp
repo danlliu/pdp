@@ -19,7 +19,7 @@
         std::optional<int> imm = parseImmediate(il.operand); \
         if (!imm) throw InvalidOperand{il.opcode, il.operand}; \
         setOpcode(mc, OPC); \
-        mc |= onesComplement(imm.value(), 13); \
+        mc |= onesComplement(((1 << imm.value()) - 1), 13); \
     }
 #define SKIP_GROUP(OP, ADDR) if (il.opcode == OP) { \
         setOpcode(mc, 064); \

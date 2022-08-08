@@ -11,6 +11,7 @@ PDPSettings parseSettings(int argc, char** argv) {
 
     // Flags:
     //   --debug: enables Debugging Mode
+    //   --extend: enables Extended Mode
     //   --sense1 through --sense6: enables the specified sense switch
     //   --mem <M>: sets the amount of available memory
     //     Available settings:
@@ -21,6 +22,7 @@ PDPSettings parseSettings(int argc, char** argv) {
 
     option long_options[] = {
         {"debug", no_argument, nullptr, 'd'},
+        {"extend", no_argument, nullptr, 'e'},
         {"sense1", no_argument, nullptr, '1'},
         {"sense2", no_argument, nullptr, '2'},
         {"sense3", no_argument, nullptr, '3'},
@@ -32,53 +34,54 @@ PDPSettings parseSettings(int argc, char** argv) {
     };
 
     int c;
-    while ((c = getopt_long(argc, argv, "d1:2:3:4:5:6:m:", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "de1:2:3:4:5:6:m:", long_options, nullptr)) != -1) {
         switch (c) {
-            case 'd':
-                settings.debug = true;
-                break;
-            case '1':
-                settings.senseSwitches[0] = true;
-                break;
-            case '2':
-                settings.senseSwitches[1] = true;
-                break;
-            case '3':
-                settings.senseSwitches[2] = true;
-                break;
-            case '4':
-                settings.senseSwitches[3] = true;
-                break;
-            case '5':
-                settings.senseSwitches[4] = true;
-                break;
-            case '6':
-                settings.senseSwitches[5] = true;
-                break;
-            case 'm':
-                {
-                    std::string arg = optarg;
-                    if (arg == "1x" || arg == "4K" || arg == "4096") {
-                        settings.memory_size = 4096;
-                    }
-                    else if (arg == "2x" || arg == "8K" || arg == "8192") {
-                        settings.memory_size = 8192;
-                    }
-                    else if (arg == "4x" || arg == "16K" || arg == "16384") {
-                        settings.memory_size = 16384;
-                    }
-                    else if (arg == "8x" || arg == "32K" || arg == "32768") {
-                        settings.memory_size = 32768;
-                    }
-                    else {
-                        exit(1);
-                    }
-                    break;
+        case 'd':
+            settings.debug = true;
+            break;
+        case 'e':
+            settings.extend = true;
+            break;
+        case '1':
+            settings.senseSwitches[0] = true;
+            break;
+        case '2':
+            settings.senseSwitches[1] = true;
+            break;
+        case '3':
+            settings.senseSwitches[2] = true;
+            break;
+        case '4':
+            settings.senseSwitches[3] = true;
+            break;
+        case '5':
+            settings.senseSwitches[4] = true;
+            break;
+        case '6':
+            settings.senseSwitches[5] = true;
+            break;
+        case 'm':
+            {
+                std::string arg = optarg;
+                if (arg == "1x" || arg == "4K" || arg == "4096") {
+                    settings.memory_size = 4096;
                 }
-            case '?':
+                else if (arg == "2x" || arg == "8K" || arg == "8192") {
+                    settings.memory_size = 8192;
+                }
+                else if (arg == "4x" || arg == "16K" || arg == "16384") {
+                    settings.memory_size = 16384;
+                }
+                else if (arg == "8x" || arg == "32K" || arg == "32768") {
+                    settings.memory_size = 32768;
+                }
+                else {
+                    exit(1);
+                }
                 break;
-            default:
-                exit(1);
+            }
+        default:
+            exit(1);
         }
     }
 

@@ -1,6 +1,9 @@
-            add     five
-            idx     negone
-            add     negone
+            add     a
+            rar     #2
+            ral     #2
+            sar     #2
+            sal     #2
             hlt
-five:       .fill   5
 negone:     .fill   -1
+a:          .fill   370
+b:          .fill   65535

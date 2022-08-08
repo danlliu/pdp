@@ -9,9 +9,10 @@
 // Reads in punched tape in ASCII art format (as created by the assembler).
 //
 // Flags:
-//   --debug: enables Debugging Mode
-//   --sense1 through --sense6: enables the specified sense switch
-//   --mem <M>: sets the amount of available memory
+//   -d / --debug: enables Debugging Mode
+//   -e / --extend: enables Extended Mode
+//   -1 through -6 / --sense1 through --sense6: enables the specified sense switch
+//   -m / --mem <M>: sets the amount of available memory
 //     Available settings:
 //       "1x" / "4K" / "4096":    4096 words
 //       "2x" / "8K" / "8192":    8192 words

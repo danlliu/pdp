@@ -4,27 +4,45 @@
 6     O
 5      
 4      
--------             add     five
+-------             add     a
 3 O    
-2      
-1      
-8 O O O
-7      
-6     O
-5      
-4      
--------             idx     negone
-3 O   O
-2      
+2 O    
 1 O    
 8 O O O
 7      
 6     O
-5      
-4      
--------             add     negone
-3 O    
-2      
+5     O
+4   O  
+-------             rar     #2
+3     O
+2 O   O
+1 O   O
+8 O O O
+7      
+6     O
+5     O
+4   O  
+-------             ral     #2
+3     O
+2 O   O
+1 O    
+8 O O O
+7      
+6   O O
+5     O
+4   O  
+-------             sar     #2
+3     O
+2 O   O
+1 O   O
+8 O O O
+7      
+6   O O
+5     O
+4   O  
+-------             sal     #2
+3     O
+2 O   O
 1 O    
 8 O O O
 7      
@@ -37,15 +55,6 @@
 1      
 8 O O O
 7      
-6      
-5      
-4      
-------- five:       .fill   5
-3 O    
-2      
-1 O    
-8 O O O
-7      
 6 O O O
 5 O O O
 4 O O O
@@ -53,3 +62,21 @@
 3 O O O
 2 O O O
 1   O O
+8 O O O
+7      
+6 O    
+5 O    
+4      
+------- a:          .fill   370
+3   O  
+2 O    
+1   O  
+8 O O O
+7      
+6 O O  
+5 O O  
+4 O O O
+------- b:          .fill   65535
+3 O O O
+2 O O O
+1 O O O

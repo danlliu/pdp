@@ -16,9 +16,12 @@
 #define WORD std::bitset<18>
 
 struct PDPState {
-    std::bitset<12> pc = 0;
+    std::bitset<16> pc = 0; // including extended PC
     std::bitset<12> ma = 0;
     std::bitset<5>  ir = 0;
+
+    bool overflow = false;
+    bool extend   = false;
 
     WORD mb = 0;
     WORD ac = 0;
@@ -41,6 +44,8 @@ private:
     WORD readMemory(unsigned int addr, bool indirect);
 
     void writeMemory(unsigned int addr, bool indirect, WORD word);
+
+    bool executeInstruction(unsigned long instr);
 
 public:
 
